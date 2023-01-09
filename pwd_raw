@@ -1,0 +1,16 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+
+int main(void)
+{
+    
+    char *abs_path;
+
+    abs_path = realpath("./",NULL);
+
+    printf("%s\n",abs_path);
+
+    return 0;
+}
