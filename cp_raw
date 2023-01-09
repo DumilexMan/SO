@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <errno.h>
+
+void perror(const char *s);
+
+void cp_(int argvs, const char *argv[])
+{
+int fs,fd;
+fs = open(argv[1],O_RDONLY);
+fd = open(argv[2],O_WRONLY | O_CREAT,0644);
+if(fs <0)
+        {perror("file does not exist");
+        return errno;}
+if(fd <0)
+{
+perror("can't create the file");
+return errno;}
+
+char buff[4096];
+ssize_t nread;
+while( nread = read(fs,buff,4096))
+{if(nread < 0)
+{
+perror("can't read");
+return errno;
+}
+ssize_t nwrite = write(fd,buff,nread);
+if(nwrite < 0)
+{perror("can't write");
+return errno;}
+}
+close(fd);close(fs);
+}
+
+int main()
+{
+    return 0;
+}
