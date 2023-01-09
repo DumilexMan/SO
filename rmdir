@@ -12,16 +12,25 @@
 void perror(const char *s);
 
 
-void touch_(char *arg)
+
+void rmdir_(char *arg)
 {
-    int fd;
-    fd = open(arg, O_WRONLY | O_CREAT, 0644);
+    char *comanda1 = "rm";
+    char *comanda2;
+    char *sl=" -r ";
+    comanda2 = (char *) malloc(4 + strlen(comanda1) + strlen(arg) );
+    strcpy(comanda2,comanda1);
+    strcat(comanda2,sl);
+    strcat(comanda2,arg);
+    printf("%s\n",comanda2);
+    system(comanda2);
 }
 
 int main(int argc, char *argv[])
 {
 
-    touch_(argv[1]);
+    if(argc>1)
+    rmdir_(argv[1]);
 
     return 0;
 }
