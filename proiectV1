@@ -1,0 +1,217 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <string.h>
+#include <memory.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <errno.h>
+void perror(const char *s);
+
+void mv_(int argc,const char* argv[])
+{
+if (argc != 2) {
+        printf("Numar incorect de argumente\n");
+        return 1;
+    }
+
+   int f1 = open(argv[1], O_RDONLY);
+   if (f1 <  0)
+   {
+      perror("Nu exista fiserul\n");
+       return 1;
+   }
+   rename(argv[1], argv[2]);
+}
+
+void ls_()
+{
+        /*pid_t pid = fork();
+ if(pid<0){perror("Error\n"); return;}
+        else if(pid == 0)
+    {char *argv[]={"ls",NULL};
+    execve("usr/bin/ls", argv, NULL);
+}
+else  {
+    printf("%s",argv[1]);
+wait(NULL);}*/
+        if(system("ls")!=0)
+        {perror("Error");
+        return;}
+}
+
+int isDirectory(const char *path) {
+   struct stat statbuf;
+   if (stat(path, &statbuf) != 0)
+       return 0;
+   return S_ISDIR(statbuf.st_mode);
+}
+
+void rmdir_(char *arg)
+{
+        if(isDirectory(arg) != 0){
+    char *comanda1 = "rm";
+    char *comanda2;
+    char *sl=" -r ";
+    comanda2 = (char *) malloc(4 + strlen(comanda1) + strlen(arg) );
+    strcpy(comanda2,comanda1);
+    strcat(comanda2,sl);
+    strcat(comanda2,arg);
+    system(comanda2);
+}
+else
+{
+perror("The object isn't a directory\n");
+return;
+}
+}
+
+void cp_(int argvs, const char *argv[])
+{
+int fs,fd;
+fs = open(argv[1],O_RDONLY);
+fd = open(argv[2],O_WRONLY | O_CREAT,0644);
+if(fs <0)
+        {perror("file does not exist");
+        return errno;}
+if(fd <0)
+{
+perror("can't create the file");
+return errno;}
+
+char buff[4096];
+ssize_t nread;
+while( nread = read(fs,buff,4096))
+{if(nread < 0)
+{
+perror("can't read");
+return errno;
+}
+ssize_t nwrite = write(fd,buff,nread);
+if(nwrite < 0)
+{perror("can't write");
+return errno;}
+}
+close(fd);close(fs);
+}
+
+void rm_(char *arg)
+{
+        if(isDirectory(arg)!= 0)
+        {perror("The object isn't a file\n");
+        return;}
+        else{
+    if (remove(arg) != 0) {
+    perror("Can't delete the file.\n");
+        return;
+  }
+         printf("File %s was succesfuly deleted!\n", arg);
+}
+}
+
+char* pwd_()
+{
+
+    char *abs_path;
+
+    abs_path = realpath("./",NULL);
+
+    return abs_path;
+}
+void mkdir_(char *nume_fisier)
+{
+    char *abs_path = pwd_();
+    char *new_path;
+    char *sl="/";
+    new_path = (char *) malloc(2 + strlen(abs_path) + strlen(nume_fisier) );
+    strcpy(new_path,abs_path);
+    strcat(new_path,"/");
+    strcat(new_path,nume_fisier);
+    //printf("%s\n",new_path);
+    mkdir(new_path,0777);
+}
+
+void touch_(char *arg)
+{
+    int fd;
+    fd = open(arg, O_WRONLY | O_CREAT, 0644);
+}
+
+void help()
+{
+printf("For exit press 1\n");
+printf("For creating a directory press 2\n");
+printf("For creating a file press 3\n");
+printf("For deleting a file  press 4\n");
+printf("For deleting a directory press 5\nDirectory will be deleted regardless if it is empty or not\n");
+printf("For finding path press 6\n");
+printf("For copying a file press 7\n");
+printf("For visualising directoy press 8\n");
+printf("For renaming a file press 9\n");
+}
+int main()
+{
+int comanda;
+printf("Wellcome Dropbox\nFor help press 0\nPlease input your command: ");
+
+int a = 1;
+char temp[100];
+char temp2[100];
+while (a == 1)
+{
+printf("->");
+scanf("%d",&comanda);
+switch (comanda)
+{
+case 0:help();
+        break;
+case 1: a  = 0;
+        break;
+case 2:
+        printf("Input directory name: ");
+        scanf("%s",temp);
+        mkdir_(temp);
+        break;
+case 3:
+        printf("Input file name: ");
+        scanf("%s",temp);
+        touch_(temp);
+        break;
+case 4:
+        printf("Input file name: ");
+        scanf("%s",temp);
+     rm_(temp);
+        break;
+case 5: printf("Input directory name: ");
+        scanf("%s",temp);
+        rmdir_(temp);
+        break;
+case 6:
+        printf("Path: %s\n",pwd_());
+        break;
+case 7: printf("Input one existing source and destination\n");
+        scanf("%s",temp);
+        scanf("%s",temp2);
+        const char* v[5];
+        v[1] = temp;
+        v[2] = temp2;
+        cp_(2,v);
+        break;
+case 8: ls_();
+        break;
+case 9:  printf("Input one existing source and destination for renaming\n");
+        scanf("%s",temp);
+        scanf("%s",temp2);
+        const char* v2[5];
+        v2[1] = temp;
+        v2[2] = temp2;
+        mv_(2,v2);
+        break;
+default:
+        scanf("%d",&comanda);
+}
+}
+return 0;
+}
