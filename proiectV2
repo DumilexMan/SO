@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <string.h>
+#include <memory.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <errno.h>
+void perror(const char *s);
+
+int verify(char* arg)
+{
+
+    int fd;
+    fd = open("temp", O_WRONLY | O_CREAT, 0644);
+        fd = open("temp2", O_WRONLY | O_CREAT, 0644);
+        system("./dbx ls > temp");
+        char *comanda = "grep ";
+        char *comanda2;
+        comanda2 =(char*) malloc(7 + strlen(comanda) + strlen(arg) + strlen("temp") + strlen(" > temp2"));
+        strcpy(comanda2,comanda);
+        strcat(comanda2,arg);
+        strcat(comanda2," ");
+        strcat(comanda2,"temp");
+        strcat(comanda2," > temp2");
+        system(comanda2);
+         FILE *fp;
+        char line[100];
